@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minhas Tarefas - TurtleSteps</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        .tarefas-wrapper {
+            max-width: 700px;
+            margin: 30px auto;
+            padding: 0 16px;
+        }
+
+        .boas-vindas {
+            background: white;
+            border-radius: 12px;
+            padding: 20px 24px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .boas-vindas h2 {
+            margin: 0;
+            font-size: 20px;
+            color: #333;
+        }
+
+        .boas-vindas p {
+            margin: 4px 0 0 0;
+            color: #666;
+            font-size: 14px;
+        }
+
+        /* Formulário de nova tarefa */
+        .form-nova-tarefa {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .form-nova-tarefa h3 {
+            margin: 0 0 16px 0;
+            color: #333;
+            font-size: 16px;
+        }
+
+        .form-nova-tarefa input[type="text"],
+        .form-nova-tarefa input[type="date"],
+        .form-nova-tarefa textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            margin-bottom: 10px;
+            font-family: Arial, Helvetica, sans-serif;
+            box-sizing: border-box;
+        }
+
+        .form-nova-tarefa textarea {
+            resize: vertical;
+            min-height: 70px;
+        }
+
+        .form-nova-tarefa input[type="text"]:focus,
+        .form-nova-tarefa input[type="date"]:focus,
+        .form-nova-tarefa textarea:focus {
+            outline: none;
+            border-color: #4caf50;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 10px;
+        }
+
+        .form-row input {
+            flex: 1;
+        }
+
+        .btn-adicionar {
+            width: 100%;
+            padding: 11px;
+            background: #4caf50;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.2s;
+        }
+
+        .btn-adicionar:hover {
+            background: #43a047;
+        }
+
+        /* Contador */
+        .contador {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .badge {
+            background: white;
+            border-radius: 20px;
+            padding: 6px 16px;
+            font-size: 13px;
+            font-weight: bold;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+        }
+
+        .badge-pendente { color: #e67e22; }
+        .badge-concluida { color: #27ae60; }
+
+        /* Lista de tarefas */
+        .lista-tarefas {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .tarefa-card {
+            background: white;
+            border-radius: 12px;
+            padding: 16px 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+            border-left: 4px solid #4caf50;
+            transition: opacity 0.2s;
+        }
+
+        .tarefa-card.concluida {
+            border-left-color: #bbb;
+            opacity: 0.7;
+        }
+
+        .tarefa-card.concluida .tarefa-titulo {
+            text-decoration: line-through;
+            color: #aaa;
+        }
+
+        .tarefa-card.vencida {
+            border-left-color: #e74c3c;
+        }
+
+        .tarefa-info {
+            flex: 1;
+        }
+
+        .tarefa-titulo {
+            font-size: 16px;
+            font-weight: bold;
+            color: #333;
+            margin: 0 0 4px 0;
+        }
+
+        .tarefa-descricao {
+            font-size: 13px;
+            color: #666;
+            margin: 0 0 8px 0;
+        }
+
+        .tarefa-data {
+            font-size: 12px;
+            color: #888;
+            display: inline-block;
+            background: #f0f0f0;
+            padding: 2px 8px;
+            border-radius: 10px;
+        }
+
+        .tarefa-data.vencida-label {
+            background: #fdecea;
+            color: #e74c3c;
+        }
+
+        .tarefa-data.hoje-label {
+            background: #fff3cd;
+            color: #e67e22;
+        }
+
+        .tarefa-acoes {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .btn-concluir,
+        .btn-deletar {
+            border: none;
+            border-radius: 6px;
+            padding: 6px 12px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: background 0.2s;
+            white-space: nowrap;
+        }
+
+        .btn-concluir {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .btn-concluir:hover { background: #c8e6c9; }
+
+        .btn-deletar {
+            background: #fdecea;
+            color: #c62828;
+        }
+
+        .btn-deletar:hover { background: #ffcdd2; }
+
+        .nenhuma-tarefa {
+            text-align: center;
+            padding: 40px;
+            background: white;
+            border-radius: 12px;
+            color: #aaa;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+        }
+
+        .nenhuma-tarefa span {
+            font-size: 40px;
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        .secao-titulo {
+            font-size: 14px;
+            font-weight: bold;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin: 20px 0 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <header class="header-container">
+        <h1 class="site-name">TurtleSteps</h1>
+        <img class="logo-header" src="{{ url_for('static', filename='img/images.jpeg') }}" alt="Logo">
+    </header>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="message {{ category }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+    <!-- Boas vindas -->
+    <div class="tarefas-wrapper">
+        <div class="boas-vindas">
+            <div>
+                <h2> Olá, {{ nome }}! 👋</h2>
+                <p>Organize seu dia com suas tarefas</p>
+            </div>
+            <a href="{{ url_for('logout') }}" class="btn btn_secondary"> Sair</a>
+        </div>
+        <!-- Formulário nova tarefa -->
+         <div class="form-nova-tarefa">
+            <h3>➕ Nova tarefa</h3>
+            <form action="{{ url_for('adicionar_tarefa') }}" method="POST">
+                <input type="text" name="titulo" placeholder="Título da tarefa *" required>
+                <textarea name="descricao" placeholder="Descrição (opcional)"></textarea>
+                <div class="form-row">
+                    <input type="date" name="data_limite">
+                </div>
+                <button type="submit" class="btn-adicionar"> Adicionar Tarefa</button>
+            </form>
+         </div>
+        <!-- Contadores -->
+        {% set pendentes = tasks | selectattr('4', 'equalto', 0) | list %}  
+        {% set concluidas = tasks | selectattr('4', 'equalto', 1) | list %}
+        <div class="contador">
+            <span class="bagde badge-pendente">🕐 {{ tasks | selectattr('5', 'equalto', 0) | list | length }} pendente(s)</span>
+            <span class="bagde badge-concluida">✅ {{ tasks | selectattr('5', 'equalto', 1) | list | length }} concluida(s)</span>
+        </div>
+        <!-- Lista de tarefas -->
+        <div class="lista-tarefas">
+            {% if tasks %}
+                {% set hoje = now %}
+                {% for task in tasks %}
+                    {# task = (id, user_id, titulo, descricao, data_limite, concluida, criada_em) #}
+                    <div class="tarefa-card {% if task[5] == 1 %}concluida{% endif %}">
+                        <div class="tarefa-info">
+                            <p class="tarefa-titulo">{{ task[2] }}</p>
+                            {% if task[3] %}
+                                <p class="tarefa-descricao">{{ task[3] }}</p>
+                            {% endif %}
+                            {% if task[4] %}
+                                <span class="tarefa-data">📅 {{ task[4] }}</span>
+                            {% endif %}
+                            {% if task[5] == 1 %}
+                                <span class="tarefa-data" style="margin-left:6px; background:#e8f5e9; color:#2e7d32;">✔ Concluída</span>
+                            {% endif %}
+                        </div>
+                        <div class="tarefa-acoes">
+                            <form action="{{ url_for('concluir_tarefa', task_id=task[0]) }}" method="POST">
+                                <button type="submit" class="btn-concluir">
+                                    {% if task[5] == 1 %}↩ Reabrir{% else %}✔ Concluir{% endif %}
+                                </button>
+                            </form>
+                            <form action="{{ url_for('deletar_tarefa', task_id=task[0]) }}" method="POST"
+                                  onsubmit="return confirm('Tem certeza que quer deletar?')">
+                                <button type="submit" class="btn-deletar">🗑 Deletar</button>
+                            </form>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="nenhuma-tarefa">
+                    <span>📋</span>
+                    <p>Nenhuma tarefa ainda. Adicione sua primeira tarefa acima!</p>
+                </div>
+            {% endif %}
+        </div>
+
+    </div>
+</body>
+</html>

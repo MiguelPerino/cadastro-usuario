@@ -13,9 +13,9 @@ def create_task_table():
         CREATE TABLE IF NOT EXISTS tasks (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             user_id INTEGER NOT NULL,
-            titulo TEXT NOT NULL
-            descricao TEXT
-            data_limite TEXT
+            titulo TEXT NOT NULL,
+            descricao TEXT,
+            data_limite TEXT,
             concluida INTEGER DEFAULT 0,
             criada_em TEXT DEFAULT (datetime('now', 'localtime')),
             FOREIGN KEY (user_id) REFERENCES users(id)
@@ -43,7 +43,7 @@ def get_tasks_by_user(user_id):
 
     cursor.execute(
         'SELECT * FROM tasks WHERE user_id = ? ORDER BY concluida ASC, data_limite ASC',
-        (user_id)
+        (user_id,)
     )
 
     tasks = cursor.fetchall() #Returns all datas in tuples inside a list
