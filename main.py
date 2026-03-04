@@ -3,6 +3,7 @@ from models.user import create_table,insert_user, get_user_by_email
 from models.task import *
 import sqlite3
 from werkzeug.security import check_password_hash, generate_password_hash
+import os
 
 app = Flask(__name__)
 
@@ -121,4 +122,5 @@ def logout():
 
 if __name__ == '__main__':
     # app.run(debug=True)
-    app.run(debug=False)
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port)
